@@ -37,9 +37,9 @@ class Producto(models.Model):
 
 class ProductoPresentacion(models.Model):
     presentacion = models.ForeignKey('presentacion')
-    precioVenta = models.DecimalField(default=0.00, decimal_places=2, max_digits=8, blank=False)
+    precioVenta = models.DecimalField(verbose_name="Precio de venta", default=0.00, decimal_places=2, max_digits=8, blank=False)
     producto = models.ForeignKey('Producto')
-    cantidad = models.PositiveIntegerField(blank=False)
+    cantidad = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
         return "%s - %s" % (self.producto, self.presentacion)

@@ -19,6 +19,9 @@ class PresentacionAdmin(admin.ModelAdmin):
 class PresentacionInline(admin.TabularInline):
 	model = ProductoPresentacion
 	extra = 0
+	readonly_fields = ('cantidad',)
+	verbose_name = 'presentacion'
+	verbose_name_plural = 'Presentaciones de este producto'
 
 class ProductoAdmin(admin.ModelAdmin):
 	list_display = ('nombre','categoria','marca','proveedor')

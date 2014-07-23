@@ -20,6 +20,7 @@ class Pedido(models.Model):
     fechaPedido = models.DateTimeField(auto_now_add=True)
     fechaIngreso = models.DateTimeField(blank=True, null=True)
     entregado = models.BooleanField(default=False)
+    proveedor = models.ForeignKey('proveedor')
 
 class DetallePedido(models.Model):
     producto = models.ForeignKey('Productos.ProductoPresentacion')
