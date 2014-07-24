@@ -9,12 +9,15 @@ class ProveedorAdmin(admin.ModelAdmin):
 
 class DetallePedidoInline(admin.TabularInline):
 	model = DetallePedido
+	raw_id_fields = ('producto',)
+	exclude = ('precio',)
 	extra = 0
 
 class PedidoAdmin(admin.ModelAdmin):
 	list_display = ('id','total','fechaPedido','fechaIngreso','entregado',)
 	list_display_links = ('id','total','fechaPedido','fechaIngreso',)
-	#list_filter = ('proveedor',)
+	list_filter = ('proveedor',)
+	readonly_fields = ('total',)
 	order_filter = ('id',)
 	search_fields = ('total','fechaPedido','fechaIngreso')
 	inlines = (DetallePedidoInline,)
