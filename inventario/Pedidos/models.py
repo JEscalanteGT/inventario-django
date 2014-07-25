@@ -2,7 +2,7 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db.models.signals import post_save, pre_save
 from django.core.exceptions import ObjectDoesNotExist
-#from Productos.models import ProductoPresentacion
+from Productos.models import Producto
 
 # Create your models here.
 class Proveedor(models.Model):
@@ -39,15 +39,31 @@ def actualizarPrecio(sender, instance, **kwargs):
   instance.precio = instance.producto.precioCosto
   try:
     detalle = DetallePedido.objects.get(id=instance.id)
-    instance.pedido.total -= actualizarSaldo(detalle.cantidad, detalle.precio, detalle.descuento)
-    instance.pedido.save()
+    if not detalle.pedido.entregado:
+        instance.pedido.total -= actualizarSaldo(detalle.cantidad, detalle.precio, detalle.descuento)
+        instance.pedido.save()
   except DetallePedido.DoesNotExist:
     detalle = None
     
 def actualizarPedido(sender, instance, created, **kwargs):
     pedido = Pedido.objects.get(id=instance.pedido.id)
-    pedido.total += actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
-    pedido.save()
+    if not pedido.entregado:
+        pedido.total += actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
+        pedido.save()
+
+def actualizarUnidades(sender, instance, **kwargs):
+    try:
+        pedido = Pedido.objects.get(id=instance.id)
+        if pedido.entregado == False and instance.entregado == True:
+            detalles = DetallePedido.objects.filter(pedido=pedido)
+            for detalle in detalles:
+                detalle.producto.cantidad += detalle.cantidad
+                detalle.producto.save()
+        if pedido.entregado == True and instance.entregado == False:
+            instance.entregado = True
+    except:
+        pedido = None
 
 post_save.connect(actualizarPedido, sender=DetallePedido)
 pre_save.connect(actualizarPrecio, sender=DetallePedido)
+pre_save.connect(actualizarUnidades, sender=Pedido)

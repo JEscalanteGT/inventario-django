@@ -15,6 +15,8 @@ class VentaAdmin(admin.ModelAdmin):
 	list_display_links = ('id','total','fecha',)
 	list_filter = ('cliente','usuario','fecha',)
 	search_fields = ('total','cliente__nombre','cliente__apellidos','cliente__nit',)
+	readonly_fields = ('total',)
+	exclude = ('usuario',)
 	inlines = (DetalleVentaInline,)
 
 admin.site.register(Cliente, ClienteAdmin)
