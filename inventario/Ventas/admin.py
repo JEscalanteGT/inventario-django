@@ -8,6 +8,8 @@ class ClienteAdmin(admin.ModelAdmin):
 
 class DetalleVentaInline(admin.TabularInline):
 	model = DetalleVenta
+	raw_id_fields = ('producto',)
+	exclude = ('precio',)
 	extra = 0
 
 class VentaAdmin(admin.ModelAdmin):
@@ -18,6 +20,10 @@ class VentaAdmin(admin.ModelAdmin):
 	readonly_fields = ('total',)
 	exclude = ('usuario',)
 	inlines = (DetalleVentaInline,)
+
+	def save_model( self, request, obj, form, change ):
+		obj.usuario = request.user
+		obj.save()
 
 admin.site.register(Cliente, ClienteAdmin)
 admin.site.register(Venta, VentaAdmin)

@@ -43,7 +43,7 @@ class ProductoPresentacion(models.Model):
     cantidad = models.PositiveIntegerField(default=0)
 
     def __unicode__(self):
-        return "%s, %s - Q.%d" % (self.producto, self.presentacion, self.precioCosto)
+        return "%s, %s (Precio costo: Q.%d, Precio venta: Q.%d)" % (self.producto, self.presentacion, self.precioCosto, self.precioVenta)
 
     class Meta:
         verbose_name = "Presentacion de producto"
