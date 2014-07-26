@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'Productos',
     'Pedidos',
     'Ventas',
+    'gunicorn',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,4 +85,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
+STATIC_ROOT = '/usr/local/venvs/inventario/static/'
 STATIC_URL = '/static/'
+#STATIC_URL = '/usr/local/venvs/inventario/static/'
