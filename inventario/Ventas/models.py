@@ -65,4 +65,3 @@ def regresarProducto(sender, instance, **kwargs):
 pre_save.connect(generarVenta, sender=DetalleVenta)
 post_save.connect(actualizarVenta, sender=DetalleVenta)
 pre_delete.connect(regresarProducto, sender=DetalleVenta)
-#pre_save.connect(actualizarUnidades, sender=Pedido)

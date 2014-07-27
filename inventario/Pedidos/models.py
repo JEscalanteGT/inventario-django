@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.core.exceptions import ObjectDoesNotExist
 from Productos.models import Producto
 
@@ -64,6 +64,12 @@ def actualizarUnidades(sender, instance, **kwargs):
     except:
         pedido = None
 
+def cancelarProducto(sender, instance, **kwargs):
+    if instance.pedido.entregado == False:
+        instance.pedido.total -= actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
+        instance.pedido.save()
+
 post_save.connect(actualizarPedido, sender=DetallePedido)
 pre_save.connect(actualizarPrecio, sender=DetallePedido)
 pre_save.connect(actualizarUnidades, sender=Pedido)
+pre_delete.connect(cancelarProducto, sender=DetallePedido)
