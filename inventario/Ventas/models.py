@@ -29,19 +29,33 @@ class DetalleVenta(models.Model):
     precio = models.DecimalField(default=0.00, max_digits=8, decimal_places=2, blank=False)
     venta = models.ForeignKey('venta')
 
-def actualizarPrecio(sender, instance, **kwargs):
-  instance.precio = instance.producto.precioVenta
-  try:
-    detalle = DetalleVenta.objects.get(id=instance.id)
-    instance.venta.total -= actualizarSaldo(detalle.cantidad, detalle.precio, detalle.descuento)
-    instance.venta.save()
-  except DetalleVenta.DoesNotExist:
-    detalle = None
+def actualizarUnidades(unidadesProducto, unidadesVenta):
+    if unidadesProducto < unidadesVenta:
+        return unidadesProducto
+    else:
+        return unidadesVenta
+
+def generarVenta(sender, instance, **kwargs):
+    instance.precio = instance.producto.precioVenta
+    try:
+        detalle = DetalleVenta.objects.get(id=instance.id)
+        instance.venta.total -= actualizarSaldo(detalle.cantidad, detalle.precio, detalle.descuento)
+        instance.venta.save()
+    
+        instance.producto.cantidad += detalle.cantidad
+        instance.producto.save()
+    except DetalleVenta.DoesNotExist:
+        detalle = None
+    print instance.producto.cantidad
+    instance.cantidad = actualizarUnidades(instance.producto.cantidad, instance.cantidad)
     
 def actualizarVenta(sender, instance, created, **kwargs):
+    instance.producto.cantidad -= instance.cantidad
+    instance.producto.save()
     venta = Venta.objects.get(id=instance.venta.id)
     venta.total += actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
     venta.save()
+
 
 #def actualizarUnidades(sender, instance, **kwargs):
 #    try:
@@ -56,6 +70,6 @@ def actualizarVenta(sender, instance, created, **kwargs):
 #    except:
 #        pedido = None
 
-pre_save.connect(actualizarPrecio, sender=DetalleVenta)
+pre_save.connect(generarVenta, sender=DetalleVenta)
 post_save.connect(actualizarVenta, sender=DetalleVenta)
 #pre_save.connect(actualizarUnidades, sender=Pedido)
