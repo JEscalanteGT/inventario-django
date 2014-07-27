@@ -1,6 +1,6 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
@@ -56,20 +56,13 @@ def actualizarVenta(sender, instance, created, **kwargs):
     venta.total += actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
     venta.save()
 
-
-#def actualizarUnidades(sender, instance, **kwargs):
-#    try:
-#        pedido = Pedido.objects.get(id=instance.id)
-#        if pedido.entregado == False and instance.entregado == True:
-#            detalles = DetallePedido.objects.filter(pedido=pedido)
-#            for detalle in detalles:
-#                detalle.producto.cantidad += detalle.cantidad
-#                detalle.producto.save()
-#        if pedido.entregado == True and instance.entregado == False:
-#            instance.entregado = True
-#    except:
-#        pedido = None
+def regresarProducto(sender, instance, **kwargs):
+    instance.producto.cantidad += instance.cantidad
+    instance.producto.save()
+    instance.venta.total -= actualizarSaldo(instance.cantidad, instance.precio, instance.descuento)
+    instance.venta.save()
 
 pre_save.connect(generarVenta, sender=DetalleVenta)
 post_save.connect(actualizarVenta, sender=DetalleVenta)
+pre_delete.connect(regresarProducto, sender=DetalleVenta)
 #pre_save.connect(actualizarUnidades, sender=Pedido)
